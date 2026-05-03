@@ -178,7 +178,29 @@
 	USRTAB:	equ $f39a ; Table of addresses of routines specified with the instruction DEFUSRX= (20b)
 	LINL40: equ $f3ae ; Width for SCREEN 0 (default 37)
 	LINL32: equ $f3af ; Width for SCREEN 1 (default 29)
-	LINLEN: equ $f3b0 ; Width for the current text mode
+	LINLEN: equ $f3b0 ; Width for the current text mode (default 37/29)
+	CRTCNT: equ $F3B1 ; Number of rows on the screen (default 24)
+	CLMLST: equ $F3B2 ; Minimum number of columns for a data item to be PRINTed (default 14)
+	TXTNAM: equ $F3B3 ; Name Table Base        SCREEN 0 (default $0000)
+	TXTCOL: equ $F3B5 ; Colour Table Base      SCREEN 0 (default $0000)
+	TXTCGP: equ $F3B7 ; Character Pattern Base SCREEN 0 (default $0800)
+	TXTATR: equ $F3B9 ; Sprite Attribute Base  SCREEN 0 (default $0000)
+	TXTPAT: equ $F3BB ; Sprite Pattern Base    SCREEN 0 (default $0000)
+	T32NAM: equ $F3BD ; Name Table Base        SCREEN 1 (default $1800)
+	T32COL: equ $F3BF ; Colour Table Base      SCREEN 1 (default $2000)
+	T32CGP: equ $F3C1 ; Character Pattern Base SCREEN 1 (default $0000)
+	T32ATR: equ $F3C3 ; Sprite Attribute Base  SCREEN 1 (default $1B00)
+	T32PAT: equ $F3C5 ; Sprite Pattern Base    SCREEN 1 (default $3800)
+	GRPNAM: equ $F3C7 ; Name Table Base        SCREEN 2 (default $1800)
+	GRPCOL: equ $F3C9 ; Colour Table Base      SCREEN 2 (default $2000)
+	GRPCGP: equ $F3CB ; Character Pattern Base SCREEN 2 (default $0000)
+	GRPATR: equ $F3CD ; Sprite Attribute Base  SCREEN 2 (default $1B00)
+	GRPPAT: equ $F3CF ; Sprite Pattern Base    SCREEN 2 (default $3800)
+	MLTNAM: equ $F3D1 ; Name Table Base        SCREEN 3 (default $0800)
+	MLTCOL: equ $F3D3 ; Colour Table Base      SCREEN 3 (default $0000)
+	MLTCGP: equ $F3D5 ; Character Pattern Base SCREEN 3 (default $0000)
+	MLTATR: equ $F3D7 ; Sprite Attribute Base  SCREEN 3 (default $1B00)
+	MLTPAT: equ $F3D9 ; Sprite Pattern Base    SCREEN 3 (default $3800)
 	CLIKSW:	equ $f3db ; Keyboard click sound
 	RG0SAV:	equ $f3df ; Content of VDP(0) register (R#0)
 	RG1SAV:	equ $f3e0 ; Content of VDP(1) register (R#1)
@@ -368,40 +390,40 @@
 	HOOK_SIZE:	equ HTIMI - HKEYI ; (5b)
 
 ; MSX2 system variables
-	RG08SAV:	equ $ffe7 ; Content of VDP(9) register (R#8)
-	RG09SAV:	equ $ffe8 ; Content of VDP(10) register (R#9)
-	RG10SAV:	equ $ffe9 ; Content of VDP(11) register (R#10)
-	RG11SAV:	equ $ffea ; Content of VDP(12) register (R#11)
-	RG12SAV:	equ $ffeb ; Content of VDP(13) register (R#12)
-	RG13SAV:	equ $ffec ; Content of VDP(14) register (R#13)
-	RG14SAV:	equ $ffed ; Content of VDP(15) register (R#14)
-	RG15SAV:	equ $ffee ; Content of VDP(16) register (R#15)
-	RG16SAV:	equ $ffef ; Content of VDP(17) register (R#16)
-	RG17SAV:	equ $fff0 ; Content of VDP(18) register (R#17)
-	RG18SAV:	equ $fff1 ; Content of VDP(19) register (R#18)
-	RG19SAV:	equ $fff2 ; Content of VDP(20) register (R#19)
-	RG20SAV:	equ $fff3 ; Content of VDP(21) register (R#20)
-	RG21SAV:	equ $fff4 ; Content of VDP(22) register (R#21)
-	RG22SAV:	equ $fff5 ; Content of VDP(23) register (R#22)
-	RG23SAV:	equ $fff6 ; Content of VDP(24) register (R#23)
+	RG08SAV: equ $ffe7 ; Content of VDP(9) register (R#8)
+	RG09SAV: equ $ffe8 ; Content of VDP(10) register (R#9)
+	RG10SAV: equ $ffe9 ; Content of VDP(11) register (R#10)
+	RG11SAV: equ $ffea ; Content of VDP(12) register (R#11)
+	RG12SAV: equ $ffeb ; Content of VDP(13) register (R#12)
+	RG13SAV: equ $ffec ; Content of VDP(14) register (R#13)
+	RG14SAV: equ $ffed ; Content of VDP(15) register (R#14)
+	RG15SAV: equ $ffee ; Content of VDP(16) register (R#15)
+	RG16SAV: equ $ffef ; Content of VDP(17) register (R#16)
+	RG17SAV: equ $fff0 ; Content of VDP(18) register (R#17)
+	RG18SAV: equ $fff1 ; Content of VDP(19) register (R#18)
+	RG19SAV: equ $fff2 ; Content of VDP(20) register (R#19)
+	RG20SAV: equ $fff3 ; Content of VDP(21) register (R#20)
+	RG21SAV: equ $fff4 ; Content of VDP(22) register (R#21)
+	RG22SAV: equ $fff5 ; Content of VDP(23) register (R#22)
+	RG23SAV: equ $fff6 ; Content of VDP(24) register (R#23)
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------
 ; VDP
 
 ; VRAM addresses
-	CHRTBL:	equ $0000 ; Pattern table
-	NAMTBL:	equ $1800 ; Name table
-	CLRTBL:	equ $2000 ; Color table
-	SPRATR:	equ $1B00 ; Sprite attributes table
-	SPRTBL:	equ $3800 ; Sprite pattern table
+	CHRTBL: equ $0000 ; Pattern table
+	NAMTBL: equ $1800 ; Name table
+	CLRTBL: equ $2000 ; Color table
+	SPRATR: equ $1B00 ; Sprite attributes table
+	SPRTBL: equ $3800 ; Sprite pattern table
 
 ; VDP symbolic constants
-	CHRTBL_SIZE:	equ 256 * 8
-	NAMTBL_SIZE:	equ 32 * 24
-	CLRTBL_SIZE:	equ 256 * 8
-	SPRATR_SIZE:	equ 32 * 4
-	SPRTBL_SIZE:	equ 32 * 64
+	CHRTBL_SIZE: equ 256 * 8
+	NAMTBL_SIZE: equ 32 * 24
+	CLRTBL_SIZE: equ 256 * 8
+	SPRATR_SIZE: equ 32 * 4
+	SPRTBL_SIZE: equ 32 * 64
 
 	SCR_WIDTH:	equ 32
 	SCR_HEIGHT:	equ 24
