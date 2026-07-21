@@ -32,7 +32,10 @@ INIT:
 ; Initialization
 	ld	a, [frame_rate]
 	sra	a
-	add	1
+	ld	[half_frame_rate], a
+	dec	a
+	ld	[half_frame_rate_m1], a
+	add	2
 	ld	[input_buffer.size], a
 	cp	31
 	ld	a, $31
@@ -103,16 +106,18 @@ INIT:
 ; ret updated [input.level]
 ; ret updated [input.edge]
 UPDATE_INPUT_LEVEL:
+	ld	bc, [frame_rate]
 ; Checks JIFFY
 	ld	hl, JIFFY
 	ld	a, [hl]
-	cp	60
+	cp	c ; (60/50)
 	jr	c, .JIFFY_OK
 	xor	a
 	ld	[hl], a
 .JIFFY_OK:
 ; Emulate pulse?
-	cp	30
+	ld	bc, [half_frame_rate]
+	cp	c ; (30/25)
 	ret	c ; no
 ; Emulate pulse?
 	ld	a, [input.level]
@@ -356,6 +361,7 @@ UPDATE_NORMALIZED_FROM_ACCUMULATOR:
 UPDATE_FSJH1:
 	ld	hl, .TABLE
 	ld	a, [fsjh1.state]
+	ld	bc, [half_frame_rate] ; b = half_frame_rate_m1, c = half_frame_rate
 	jp	JP_TABLE
 .TABLE:
 	dw	.CENTER		;  0
@@ -402,7 +408,7 @@ UPDATE_FSJH1:
 ; 0: Expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	30
+	cp	c ; (30/25)
 	jp	z, .SET_CENTER ; no; too many 0s
 ; yes
 	inc	[hl]
@@ -425,7 +431,7 @@ UPDATE_FSJH1:
 ; 1: Expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	30
+	cp	c ; (30/25)
 	jp	z, .SET_LEFTMOST ; no; too many 1s
 ; yes
 	inc	[hl]
@@ -452,7 +458,7 @@ UPDATE_FSJH1:
 ; 0: Last expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	29
+	cp	b ; (29/24)
 	jp	z, .SET_LEFT_1s ; yes: change to expect 1s
 ; yes
 	inc	[hl]
@@ -479,7 +485,7 @@ UPDATE_FSJH1:
 ; 1: Last expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	29
+	cp	b ; (29/24)
 	jp	z, .SET_LEFT_0s ; yes: change to expect 0s
 ; yes
 	inc	[hl]
@@ -519,7 +525,7 @@ UPDATE_FSJH1:
 ; 0: Expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	30
+	cp	c ; (30/25)
 	jp	z, .SET_CENTER ; no; too many 0s
 ; yes
 	inc	[hl]
@@ -542,7 +548,7 @@ UPDATE_FSJH1:
 ; 1: Expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	30
+	cp	c ; (30/25)
 	jp	z, .SET_RIGHTMOST ; no; too many 1s
 ; yes
 	inc	[hl]
@@ -569,7 +575,7 @@ UPDATE_FSJH1:
 ; 0: Last expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	29
+	cp	b ; (29/24)
 	jp	z, .SET_RIGHT_1s ; yes: change to expect 1s
 ; yes
 	inc	[hl]
@@ -596,7 +602,7 @@ UPDATE_FSJH1:
 ; 1: Last expected?
 	ld	hl, fsjh1.accumulator
 	ld	a, [hl]
-	cp	29
+	cp	b ; (29/24)
 	jp	z, .SET_RIGHT_0s ; yes: change to expect 0s
 ; yes
 	inc	[hl]
@@ -706,6 +712,9 @@ DATA_LITERALS:
 ; -----------------------------------------------------------------------------
 ; MSXlib core and game-related variables
 	include	"lib/ram.asm"
+
+half_frame_rate:	rb 1
+half_frame_rate_m1:	rb 1
 
 ; Accumulator algorithm: accumulator
 accumulator:	rb 1
